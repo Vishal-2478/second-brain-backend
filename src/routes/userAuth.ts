@@ -32,45 +32,47 @@ router.post('/api/v1/signup', async (req: Request, res: Response): Promise<void>
     const parsedData = signupSchema.safeParse(req.body);
 
     if (!parsedData.success) {
-        res.status(411).json({
-            message: "Error in inputs",
-            error: parsedData.error.issues[0].message
-        })
+        res.status(400).json({
+            success: false,
+            message: parsedData.error.issues[0].message
+        });
         return;
     }
 
     try {
-        // type UserType = z.infer<typeof requestBody>;
-
         const { username, password } = parsedData.data;
 
         const findUser = await UserModel.findOne({ username });
         if (findUser) {
-            res.status(401).json({
+            res.status(409).json({
+                success: false,
                 message: "User already exists with this username"
-            })
+            });
             return;
         }
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const user = new UserModel({
-            username: username,
+            username,
             password: hashedPassword
-        })
+        });
 
         await user.save();
 
         res.status(201).json({
-            message: "User created Successfully"
-        })
-    }
-    catch (error) {
+            success: true,
+            message: "User created successfully"
+        });
+
+    } catch (error) {
         res.status(500).json({
+            success: false,
             message: "Internal Server Error"
-        })
+        });
     }
-})
+});
+
 
 
 
