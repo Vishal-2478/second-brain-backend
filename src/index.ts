@@ -10,7 +10,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: [
+        "https://second-brain-frontend-tan.vercel.app/"
+    ],
+    credentials: true
+}));
+
 
 app.use(authRoutes);
 app.use(userContentRoutes);
